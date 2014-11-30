@@ -1,0 +1,58 @@
+  <style>
+
+    .url {
+      
+    }
+
+/*    .btn-file {
+        position: relative;
+        overflow: hidden;
+    }*/
+
+    #file {
+      font-size: 14px;
+    }
+
+    .modal {
+      display:    none;
+      position:   fixed;
+      z-index:    1000;
+      top:        0;
+      left:       0;
+      height:     100%;
+      width:      100%;
+      background: rgba( 0, 0, 0, .8 )
+                  url('../loading.gif') 
+                  50% 50% 
+                  no-repeat;
+    }
+
+    body.loading {
+        overflow: hidden;
+    }
+
+    body.loading .modal {
+        display: block;
+    }
+
+    body {
+      font-size: 20px;
+    }
+
+    .header {
+      padding: 20px;
+      padding-bottom: 70px;
+      background: #528ae5;
+      /*background: #6eb049;*/
+      color: #dddae5;
+    }
+
+    .header h1 {
+      color: white;
+    }
+
+    .panel {
+      margin: 30px;
+
+    }
+  </style>

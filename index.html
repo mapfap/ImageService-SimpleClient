@@ -1,109 +1,135 @@
 <!DOCTYPE html>
 
 <html lang="en">
-<head>
-  <link href="css/bootstrap.min.css" rel="stylesheet">
-  <script src="jquery-1.11.0.min.js"></script>
-  <script src="bootstrap.min.js"></script>
+  <head>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="jquery-1.11.0.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+    <title>Image Service Playground</title>
+  </head>
+  <body>
+    
+    <div class="header">
+      <h1> Image Service | Playground </h1>
+      by mapfap
+    </div>
 
-<form method='post' enctype="multipart/form-data">
-  <button type="submit" class="btn btn-file btn-success">
-    <span class="glyphicon glyphicon-file">
-      <input id="file" type='file' name='file' />
-    </span>
-  </button>
-</form>
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Upload Image</h3>
+      </div>
+      <div class="panel-body">
+        <form method='post' enctype="multipart/form-data">
 
-<br>
-Request
-<input type="text" class="url">
+              <input id="file" type='file' name='file' />
+        </form>
+      </div>
+    </div>
 
-</input>
-<button id="get">
-  GET
-</button>
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Get Image</h3>
+      </div>
+      <div class="panel-body">
+        <div class="input-group">
+          <input type="text" class="form-control url">
+          <span class="input-group-btn">
+            <button class="btn btn-primary" type="button" id="get">GET</button>
+          </span>
+        </div>
 
-<div class="show">
+    <div class="show">
 
-</div>
+    </div>
+      </div>
+    </div>
 
-<script>
-  $(function() {
+    <div class="panel panel-primary" style="display: none;">
+      <div class="panel-heading">
+        <h3 class="panel-title">Panel title</h3>
+      </div>
+      <div class="panel-body">
+        Panel content
+      </div>
+    </div>
+    
+    <div class="modal"></div>
 
-    $("#get").click(function(e) {
-      $(".show").html("<img src='" + $(".url").val() + "'>");
-    });
+  </body>
 
-    function postFile() {
-      var formData = new FormData($('form')[0]);
-      $.ajax({
-        url: "http://localhost:8080/images",  //Server script to process data
-        type: "POST",
-        xhr: function() {  // Custom XMLHttpRequest
-            var myXhr = $.ajaxSettings.xhr();
-            if (myXhr.upload) { // Check if upload property exists
-                // myXhr.upload.addEventListener("progress", progressHandlingFunction, false); // For handling the progress of the upload
-            }
-            return myXhr;
-        },
-        //Ajax events
-        beforeSend: function(res) { 
-          // console.log(res)
-        },
-        success: function(data, textStatus, jqXHR) {
-          // console.log(res.getResponseHeader("location"));
-          var location = jqXHR.getResponseHeader("location");
-          $(".url").val(location);
-          $(".show").html("<img src='" + location + "'>");
+  <script>
+    $(function() {
 
-        },
-        error: function(data, textStatus, jqXHR) {
-          console.log(textStatus)
-        },
-        // Form data
-        data: formData,
-        //Options to tell jQuery not to process data or worry about content-type.
-        cache: false,
-        contentType: false,
-        processData: false
-    });
-    }
-
-    $("#file").change(function () {
-      if ($("#file").val() == "") {
-        return;
+      function getImage(url) {
+        // $.get(url, function(response) {
+          $(".show").html("<img src='" + url + "'>");
+        // });
       }
 
-      postFile();
+      $(".url").change(function(e) {
+        getImage($(".url").val());
+      });
 
-      $("#file").val("");
+      $("#get").click(function(e) {
+        getImage($(".url").val());
+      });
+
+      function postFile() {
+        var formData = new FormData($('form')[0]);
+        $.ajax({
+          url: "http://localhost:8080/images",  //Server script to process data
+          type: "POST",
+          xhr: function() {  // Custom XMLHttpRequest
+              var myXhr = $.ajaxSettings.xhr();
+              if (myXhr.upload) { // Check if upload property exists
+                  // myXhr.upload.addEventListener("progress", progressHandlingFunction, false); // For handling the progress of the upload
+              }
+              return myXhr;
+          },
+          //Ajax events
+          beforeSend: function(res) { 
+            // console.log(res)
+          },
+          success: function(data, textStatus, jqXHR) {
+            // console.log(res.getResponseHeader("location"));
+            var location = jqXHR.getResponseHeader("location");
+            $(".url").val(location);
+            getImage(location);
+
+          },
+          error: function(data, textStatus, jqXHR) {
+            console.log(textStatus)
+          },
+          // Form data
+          data: formData,
+          //Options to tell jQuery not to process data or worry about content-type.
+          cache: false,
+          contentType: false,
+          processData: false
+      });
+      }
+
+      $("#file").change(function () {
+        if ($("#file").val() == "") {
+          return;
+        }
+
+        postFile();
+
+        $("#file").val("");
+      });
+
+      $(document).on({
+        ajaxStart: function() {
+          // if (showLoading) {
+            $("body").addClass("loading");
+          // }
+        },
+        ajaxStop: function() {
+          $("body").removeClass("loading");
+        }    
+      });
     });
-  });
-</script>
-<style>
-
-  .url {
-    width: 800px;
-  }
-
-  .btn-file {
-      position: relative;
-      overflow: hidden;
-  }
-
-  #file {
-      position: absolute;
-      top: 0;
-      right: 0;
-      min-width: 100%;
-      min-height: 100%;
-      font-size: 100px;
-      text-align: right;
-      filter: alpha(opacity=0);
-      opacity: 0;
-      outline: none;
-      background: white;
-      cursor: inherit;
-      display: block;
-  }
-</style>
+  </script>
+</html>

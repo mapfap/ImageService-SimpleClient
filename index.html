@@ -45,12 +45,16 @@
       </div>
     </div>
 
-    <div class="panel panel-primary" style="display: none;">
+    <div class="panel panel-primary">
       <div class="panel-heading">
-        <h3 class="panel-title">Panel title</h3>
+        <h3 class="panel-title">Images Listing for Admin</h3>
       </div>
       <div class="panel-body">
-        Panel content
+        <button id="list" class="btn btn-primary">
+          Show
+        </button>
+        <div class="show-list">
+        </div>
       </div>
     </div>
     
@@ -60,6 +64,20 @@
 
   <script>
     $(function() {
+
+      var IMAGE_SERVICE = "http://localhost:8080/images";
+
+      $("#list").click(function(e) {
+        $.get(IMAGE_SERVICE, function(xml) {
+          var html = "";
+          $(xml).find('entry').each(function(){
+            var link = $(this).find('link').attr("href");
+            console.log(link);
+            html += "<li>" + link + "<br><img src='" + link + "'></li>";
+          });
+          $(".show-list").html(html);
+        });
+      });
 
       function getImage(url) {
         // $.get(url, function(response) {
@@ -78,7 +96,7 @@
       function postFile() {
         var formData = new FormData($('form')[0]);
         $.ajax({
-          url: "http://localhost:8080/images",  //Server script to process data
+          url: IMAGE_SERVICE,  //Server script to process data
           type: "POST",
           xhr: function() {  // Custom XMLHttpRequest
               var myXhr = $.ajaxSettings.xhr();

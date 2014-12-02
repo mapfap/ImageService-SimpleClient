@@ -40,14 +40,14 @@
             <button class="btn btn-primary" type="button" id="get">GET</button>
           </span>
         </div>
-        <button class="btn btn-default toggle-options" type="button">Show/Hide Options</button>
+        <button class="btn btn-default toggle-options" type="button">Show/Hide Options</button><br><br>
         <div class="options">
-          Width <input type="range" name="width" min="-500" max="500">
-          Height <input type="range" name="height" min="-500" max="500">
-          Brightness <input type="range" name="brightness" min="-5" max="5">
-          <input type="checkbox" name="grayscale" value="Bike"> Grayscale
+          Width = <div class="il show-width"></div><input id="width-input" type="range" name="width" min="-480" max="500">
+          Height = <div class="il show-height"></div><input id="height-input" type="range" name="height" min="-480" max="500">
+          Brightness = <div class="il show-brightness"></div><input id="brightness-input" type="range" name="brightness" min="-2" max="5">
+          <input id="grayscale-input" type="checkbox" name="grayscale"> Grayscale
           <br>
-          <input type="checkbox" name="gaussian" value="Bike"> Gaussian Blur
+          <input id="gaussian-input" type="checkbox" name="gaussian"> Gaussian Blur
 
         </div>
         
@@ -64,7 +64,7 @@
       <div class="panel-body">
         <button id="list" class="btn btn-primary">
           Show
-        </button>
+        </button><br><br>
         <div class="show-list">
         </div>
       </div>
@@ -86,10 +86,16 @@
           $(xml).find('entry').each(function(){
             var link = $(this).find('link').attr("href");
             console.log(link);
-            html += "<li>" + link + "<!--br><img src='" + link + "'--></li>";
+            html += "<li> <button link='" + link + "' class='copy btn btn-default'>load</button> " + link + "</li>";
           });
           $(".show-list").html(html);
         });
+      });
+
+      $(".show-list").delegate(".copy", "click", function(e) {
+        var location = $(this).attr("link");
+        $(".url").val(location);
+        getImage(location);
       });
 
       function getImage(url) {
@@ -150,6 +156,48 @@
 
         $("#file").val("");
       });
+
+      $("#width-input").change(function(e) {
+        updateRequest();
+      });
+
+      $("#height-input").change(function(e) {
+        updateRequest();
+      });
+
+      $("#brightness-input").change(function(e) {
+        updateRequest();
+      });
+
+      $("#grayscale-input").change(function(e) {
+        updateRequest();
+      });
+
+      $("#gaussian-input").change(function(e) {
+        updateRequest();
+      });
+
+      function updateRequest() {
+        var imageID = $(".url").val().match(/\/images\/(.*)\?/);
+
+        if (imageID == null || imageID.length < 2) {
+          imageID = "_____IMAGE_____";
+        } else {
+          imageID = imageID[1];
+        }
+
+        var width = $("#width-input").val();
+        var height = $("#height-input").val();
+        var brightness = $("#brightness-input").val();
+        var grayscale = $("#grayscale-input").is(':checked');
+        var gaussian = $("#gaussian-input").is(':checked');
+
+        $(".show-width").text(width);
+        $(".show-height").text(height);
+        $(".show-brightness").text(brightness);
+
+        $(".url").val(IMAGE_SERVICE + "/" + imageID + "?width=" + width + "&height=" + height + "&brightness=" + brightness + "&grayscale=" + grayscale + "&gaussian=" + gaussian);
+      }
 
       $(document).on({
         ajaxStart: function() {

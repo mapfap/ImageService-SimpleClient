@@ -6,9 +6,11 @@
     <script src="jquery-1.11.0.min.js"></script>
     <script src="bootstrap.min.js"></script>
     <link rel="stylesheet" href="css/style.css" />
-    <title>Image Service Playground</title>
+    <title>Image Service | Playground</title>
   </head>
   <body>
+
+    <a href="https://github.com/mapfap/ImageService"><img style="position: absolute; top: 0; right: 0; border: 0;" src="github.png" alt="Fork me on GitHub"></a>
     
     <div class="header">
       <h1> Image Service | Playground </h1>
@@ -38,10 +40,20 @@
             <button class="btn btn-primary" type="button" id="get">GET</button>
           </span>
         </div>
+        <button class="btn btn-default toggle-options" type="button">Show/Hide Options</button>
+        <div class="options">
+          Width <input type="range" name="width" min="-500" max="500">
+          Height <input type="range" name="height" min="-500" max="500">
+          Brightness <input type="range" name="brightness" min="-5" max="5">
+          <input type="checkbox" name="grayscale" value="Bike"> Grayscale
+          <br>
+          <input type="checkbox" name="gaussian" value="Bike"> Gaussian Blur
 
-    <div class="show">
+        </div>
+        
+        <div class="show">
 
-    </div>
+        </div>
       </div>
     </div>
 
@@ -65,6 +77,7 @@
   <script>
     $(function() {
 
+      // var IMAGE_SERVICE = "http://mapfap.tk/images";
       var IMAGE_SERVICE = "http://localhost:8080/images";
 
       $("#list").click(function(e) {
@@ -73,7 +86,7 @@
           $(xml).find('entry').each(function(){
             var link = $(this).find('link').attr("href");
             console.log(link);
-            html += "<li>" + link + "<br><img src='" + link + "'></li>";
+            html += "<li>" + link + "<!--br><img src='" + link + "'--></li>";
           });
           $(".show-list").html(html);
         });
@@ -113,7 +126,7 @@
             // console.log(res.getResponseHeader("location"));
             var location = jqXHR.getResponseHeader("location");
             $(".url").val(location);
-            getImage(location);
+            // getImage(location);
 
           },
           error: function(data, textStatus, jqXHR) {
@@ -147,6 +160,10 @@
         ajaxStop: function() {
           $("body").removeClass("loading");
         }    
+      });
+
+      $(".toggle-options").click(function(e) {
+        $(".options").slideToggle();
       });
     });
   </script>

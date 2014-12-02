@@ -4,6 +4,11 @@
       
     }
 
+    .options {
+      display: none;
+      width: 50%;
+    }
+
 /*    .btn-file {
         position: relative;
         overflow: hidden;
@@ -40,7 +45,8 @@
     }
 
     .header {
-      padding: 20px;
+
+      padding: 40px;
       padding-bottom: 70px;
       background: #528ae5;
       /*background: #6eb049;*/

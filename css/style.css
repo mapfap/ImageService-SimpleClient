@@ -1,18 +1,11 @@
   <style>
 
-    .url {
-      
-    }
+    
 
     .options {
       display: none;
       width: 50%;
     }
-
-/*    .btn-file {
-        position: relative;
-        overflow: hidden;
-    }*/
 
     #file {
       font-size: 14px;

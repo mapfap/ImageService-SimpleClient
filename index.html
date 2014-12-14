@@ -17,15 +17,35 @@
       by mapfap
     </div>
 
+     <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Authentication</h3>
+      </div>
+
+      <div class="panel-body">
+
+        <h4>Option 1: Authenticated Upload</h4>
+        <div class="auth">
+          <a href="http://www.mapfap.tk/images/login"><img src="google-btn.png" class="google-btn"></a>
+        </div>
+
+        <hr>
+        <h4>Option 2: Anonymous Upload</h4><span class="glyphicon glyphicon-question-sign"></span>
+        <small>'Delete' function will be disabled.</small>
+      </div>
+    </div>
+
     <div class="panel panel-primary">
       <div class="panel-heading">
         <h3 class="panel-title">Upload Image</h3>
       </div>
-      <div class="panel-body">
-        <form method='post' enctype="multipart/form-data">
 
+      <div class="panel-body">
+
+        <form method='post' enctype="multipart/form-data">
               <input id="file" type='file' name='file' />
         </form>
+
       </div>
     </div>
 
@@ -41,13 +61,13 @@
           </span>
         </div>
         <button class="btn btn-default toggle-options" type="button">Show/Hide Options</button><br><br>
-        <div class="options">
+        <div class="options" style="display: none;">
           Width = <div class="il show-width"></div><input id="width-input" type="range" name="width" min="-480" max="500">
           Height = <div class="il show-height"></div><input id="height-input" type="range" name="height" min="-480" max="500">
-          Brightness = <div class="il show-brightness"></div><input id="brightness-input" type="range" name="brightness" min="-2" max="5">
+          <strike>Brightness = </strike> <small><i>DISABLED</i></small><div class="il show-brightness"></div><input id="brightness-input" type="range" name="brightness" min="-2" max="5">
           <input id="grayscale-input" type="checkbox" name="grayscale"> Grayscale
           <br>
-          <input id="gaussian-input" type="checkbox" name="gaussian"> Gaussian Blur
+          <input id="gaussian-input" type="checkbox" name="gaussian"> <strike>Gaussian Blur</strike> <small><i>DISABLED</i></small>
 
         </div>
         
@@ -77,25 +97,49 @@
   <script>
     $(function() {
 
-      // var IMAGE_SERVICE = "http://mapfap.tk/images";
-      var IMAGE_SERVICE = "http://localhost:8080/images";
+      var IMAGE_SERVICE = "http://mapfap.tk/images";
+      // var IMAGE_SERVICE = "http://localhost:8080/images";
 
-      $("#list").click(function(e) {
+      function getParam(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+
+      var name = getParam("name");
+      var token = getParam("token");
+      if (name != "" && token != "") {
+        // alert("ok");
+        $(".auth").html("<img src='glogo.png' class='glogo'>" + name + "&nbsp;&nbsp;<a href='/play'>Logout</a><br><h6 style='width=100px; display: inline-block;'class='alert-success'>Success! -- Go to next step.</h6>");
+
+      }
+
+      function getList() {
         $.get(IMAGE_SERVICE, function(xml) {
           var html = "";
           $(xml).find('entry').each(function(){
             var link = $(this).find('link').attr("href");
             console.log(link);
-            html += "<li> <button link='" + link + "' class='copy btn btn-default'>load</button> " + link + "</li>";
+            html += "<li> <button link='" + link + "' class='copy btn btn-default'>load</button> " + "<button link='" + link + "' class='delete btn btn-default'>delete</button> " + link + "</li>";
           });
           $(".show-list").html(html);
         });
+      }
+
+      $("#list").click(function(e) {
+        getList();
       });
 
       $(".show-list").delegate(".copy", "click", function(e) {
         var location = $(this).attr("link");
         $(".url").val(location);
         getImage(location);
+      });
+
+      $(".show-list").delegate(".delete", "click", function(e) {
+        var link = $(this).attr("link");
+        deleteImage(link);
       });
 
       function getImage(url) {
@@ -113,9 +157,14 @@
       });
 
       function postFile() {
+        var serviceURL = IMAGE_SERVICE;
+        if (token != "") {
+          serviceURL += "?token=" + token;
+        }
+        
         var formData = new FormData($('form')[0]);
         $.ajax({
-          url: IMAGE_SERVICE,  //Server script to process data
+          url: serviceURL,  //Server script to process data
           type: "POST",
           xhr: function() {  // Custom XMLHttpRequest
               var myXhr = $.ajaxSettings.xhr();
@@ -125,18 +174,19 @@
               return myXhr;
           },
           //Ajax events
-          beforeSend: function(res) { 
+          beforeSend: function(request) { 
+            // request.setRequestHeader("Authorization", "");
             // console.log(res)
           },
           success: function(data, textStatus, jqXHR) {
             // console.log(res.getResponseHeader("location"));
             var location = jqXHR.getResponseHeader("location");
             $(".url").val(location);
-            // getImage(location);
+            getImage(location);
 
           },
           error: function(data, textStatus, jqXHR) {
-            console.log(textStatus)
+            alert("An error occur. Invalid token may cause this problem, please try login again.");
           },
           // Form data
           data: formData,
@@ -145,6 +195,26 @@
           contentType: false,
           processData: false
       });
+      }
+
+      function deleteImage(link) {
+        if (token == "") {
+          window.location.href = IMAGE_SERVICE + "/login";
+        }
+         var request = new XMLHttpRequest(); 
+          request.open("DELETE", link + "&token=" + token, true);
+          // request.setRequestHeader("Authorization", accessToken);
+          request.send();
+          request.onreadystatechange = function() {
+            if ( request.readyState == 4 ) {
+              if (request.status == 200) {
+                getList();
+                alert("Image deleted.");
+              } else {
+                alert(request.status + ": " + request.response);
+              }
+            }
+          }
       }
 
       $("#file").change(function () {
@@ -215,4 +285,23 @@
       });
     });
   </script>
+  <style>
+    .google-btn {
+      width: 200px;
+      transition: all 0.2s;
+      -webkit-transition: all 0.2s;
+      -moz-transition: all 0.2s;
+    }
+
+    .google-btn:hover {
+      filter: brightness(85%);
+      -webkit-filter: brightness(85%);
+      -moz-filter: brightness(85%);
+    }
+
+    .glogo {
+      width: 25px;
+      margin-right: 10px;
+    }
+  </style>
 </html>
